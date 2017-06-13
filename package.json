@@ -1,0 +1,23 @@
+{
+  "name": "milterjs",
+  "description": "javascript milter api client",
+  "version": "0.0.1",
+  "author": "Alexandre Tiertant <a.tiertant@atlantis-software.net>",
+  "license": "MIT",
+  "main": "./index.js",
+  "repository": "https://github.com/Atlantis-Software/milterjs",
+  "homepage": "https://github.com/Atlantis-Software/milterjs",
+  "keywords": [
+    "milter",
+    "api",
+    "sendmail",
+    "postfix"
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "engines": {
+    "node": ">= 6.0.0"
+  }
+}
