@@ -6,10 +6,10 @@ const SMFI_V1_ACTS     = 0x0F;
 const SMFI_V2_ACTS     = 0x1F;
 const SMFI_CURR_ACTS   = 0x1F;
 
-const SMFIA_UNKNOWN	   = 'U';
-const SMFIA_UNIX		   = 'L';
-const SMFIA_INET		   = '4';
-const SMFIA_INET6	     = '6';
+const SMFIA_UNKNOWN    = 'U';
+const SMFIA_UNIX       = 'L';
+const SMFIA_INET       = '4';
+const SMFIA_INET6      = '6';
 
 const SMFIC_ABORT      = 'A';
 const SMFIC_BODY       = 'B';
@@ -26,21 +26,21 @@ const SMFIC_RCPT       = 'R';
 const SMFIC_DATA       = 'T';
 const SMFIC_UNKNOWN    = 'U';
 
-const SMFIR_ADDRCPT	   = '+';
-const SMFIR_DELRCPT	   = '-';
-const SMFIR_ACCEPT	   = 'a';
-const SMFIR_REPLBODY	 = 'b';
-const SMFIR_CONTINUE	 = 'c';
-const SMFIR_DISCARD	   = 'd';
-const SMFIR_ADDHEADER	 = 'h';
-const SMFIR_INSHEADER	 = 'i'; // v3, or v2 and Sendmail 8.13+
-const SMFIR_CHGHEADER	 = 'm';
-const SMFIR_PROGRESS	 = 'p';
+const SMFIR_ADDRCPT    = '+';
+const SMFIR_DELRCPT    = '-';
+const SMFIR_ACCEPT     = 'a';
+const SMFIR_REPLBODY   = 'b';
+const SMFIR_CONTINUE   = 'c';
+const SMFIR_DISCARD    = 'd';
+const SMFIR_ADDHEADER  = 'h';
+const SMFIR_INSHEADER  = 'i'; // v3, or v2 and Sendmail 8.13+
+const SMFIR_CHGHEADER  = 'm';
+const SMFIR_PROGRESS   = 'p';
 const SMFIR_QUARANTINE = 'q';
-const SMFIR_REJECT	   = 'r';
-const SMFIR_SETSENDER	 = 's';
-const SMFIR_TEMPFAIL	 = 't';
-const SMFIR_REPLYCODE	 = 'y';
+const SMFIR_REJECT     = 'r';
+const SMFIR_SETSENDER  = 's';
+const SMFIR_TEMPFAIL   = 't';
+const SMFIR_REPLYCODE  = 'y';
 
 const SMFIF_ADDHDRS    = 0x01;
 const SMFIF_CHGBODY    = 0x02;
@@ -64,6 +64,12 @@ var uniqueID = 1;
 const milter = module.exports = new EventEmitter();
 milter.actions = SMFI_CURR_ACTS;
 
+var writeErrorHandler = function(err) {
+  if (err) {
+    console.log(err);
+  }
+};
+
 var server = net.createServer(function(socket) {
 
   var ctx = {
@@ -81,9 +87,9 @@ var server = net.createServer(function(socket) {
     data = data || Buffer.alloc(0);
     var len = Buffer.alloc(4);
     len.writeUInt32BE(data.length + 1);
-    this.socket.write(len);
-    this.socket.write(code);
-    this.socket.write(data);
+    this.socket.write(len, writeErrorHandler);
+    this.socket.write(code, writeErrorHandler);
+    this.socket.write(data, writeErrorHandler);
   }
 
   // Add header HEADER with value VALUE to this mail.  Does not change any
@@ -398,7 +404,7 @@ var server = net.createServer(function(socket) {
         // required protocol
         res.writeUInt32BE(requiredProtocol & protocol, 13);
 
-        socket.write(res);
+        socket.write(res, writeErrorHandler);
         break;
       case SMFIC_RCPT:
         var envrcpt = data.toString('ascii').split('\0');
