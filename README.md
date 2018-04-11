@@ -36,6 +36,7 @@ Start listening for sendmail/postfix connections on the given port and host.
 | eom | ctx | yes | the end of the body. |
 | helo | ctx, heloName | yes | HELO/EHLO name |
 | envfrom | ctx, sender | yes | array[0] sender, with <> qualification. array[1] and beyond are ESMTP arguments, if any. |
+| header | ctx, header | no | array[0] header, array[1] value |
 | eoh | ctx | yes | the end of headers. |
 | envrcpt | ctx, recipients | yes | array[0] recipient, with <> qualification. array[1] and beyond are ESMTP arguments, if any. |
 | data | ctx | yes | end of data. |
