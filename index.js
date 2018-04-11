@@ -72,12 +72,14 @@ var writeErrorHandler = function(err) {
 
 var server = net.createServer(function(socket) {
 
+  uniqueID === Number.MAX_SAFE_INTEGER ? 1 : uniqueID++;
+
   var ctx = {
     socket: socket,
     version: null,
     hook: null,
     macros: {},
-    uniqueID: uniqueID++
+    uniqueID: uniqueID
   };
 
   ctx.send = function(code, data) {
