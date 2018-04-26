@@ -19,7 +19,7 @@ milterjs.on('helo', function(ctx) {
   ctx.continue();
 });
 
-milter.listen(9568, '127.0.0.1');
+milterjs.listen(9568, '127.0.0.1');
 ```
 
 ## METHODS
@@ -45,7 +45,7 @@ Start listening for sendmail/postfix connections on the given port and host.
 | envfrom | ctx, sender | yes | array[0] sender, with <> qualification. array[1] and beyond are ESMTP arguments, if any. |
 | header | ctx, header | no | array[0] header, array[1] value |
 | eoh | ctx | yes | the end of headers. |
-| envrcpt | ctx, recipients | yes | array[0] recipient, with <> qualification. array[1] and beyond are ESMTP arguments, if any. |
+| envrcpt | ctx, recipient | yes | array[0] recipient, with <> qualification. array[1] and beyond are ESMTP arguments, if any. |
 | data | ctx | yes | end of data. |
 | close | ctx | no | close milter connection. |
 | unknown | ctx, command | no | tell the milter that an unknown smtp command has been received. |

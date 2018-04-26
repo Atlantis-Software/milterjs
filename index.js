@@ -1,7 +1,7 @@
 const net = require('net');
 const EventEmitter = require('events');
 
-
+/* eslint-disable no-unused-vars */
 const SMFI_V1_ACTS     = 0x0F;
 const SMFI_V2_ACTS     = 0x1F;
 const SMFI_CURR_ACTS   = 0x1F;
@@ -58,7 +58,7 @@ const SMFIP_NOBODY     = 0x10;
 const SMFIP_NOHDRS     = 0x20;
 const SMFIP_NOEOH      = 0x40;
 const SMFIP_NONE       = 0x7F;
-
+/* eslint-enable no-unused-vars */
 
 var uniqueID = 1;
 const milter = module.exports = new EventEmitter();
@@ -66,7 +66,7 @@ milter.actions = SMFI_CURR_ACTS;
 
 var writeErrorHandler = function(err) {
   if (err) {
-    console.log(err);
+    console.log(err); // eslint-disable-line no-console
   }
 };
 
@@ -92,7 +92,7 @@ var server = net.createServer(function(socket) {
     this.socket.write(len, writeErrorHandler);
     this.socket.write(code, writeErrorHandler);
     this.socket.write(data, writeErrorHandler);
-  }
+  };
 
   // Add header HEADER with value VALUE to this mail.  Does not change any
   // existing headers with the same name.  Only callable from the "eom" callback.
@@ -125,7 +125,7 @@ var server = net.createServer(function(socket) {
       return milter.emit('error', new Error('addrcpt: called outside of EOM'));
     }
     if (milter.actions & SMFIF_ADDRCPT) {
-      this.send(SMFIR_ADDRCPT, Buffer.from(rcpt + '\0'));   
+      this.send(SMFIR_ADDRCPT, Buffer.from(rcpt + '\0'));
     } else {
       milter.emit('error', new Error('addrcpt: SMFIF_ADDRCPT not in capability list'));
     }
@@ -172,19 +172,19 @@ var server = net.createServer(function(socket) {
     }
   };
 
-  // Sends an asynchronous "progress" message to the MTA, which should reset 
-  // the MTA's internal communications timer.  This can allow longer than 
-  // normal operations, such as a deliberate delay, to continue running without 
-  // dropping the milter-MTA connection.  This command can be issued at any 
-  // time during any callback, although issuing it during a "close" callback 
+  // Sends an asynchronous "progress" message to the MTA, which should reset
+  // the MTA's internal communications timer.  This can allow longer than
+  // normal operations, such as a deliberate delay, to continue running without
+  // dropping the milter-MTA connection.  This command can be issued at any
+  // time during any callback, although issuing it during a "close" callback
   // may trigger socket connection warnings.
 
   ctx.progress = function() {
     this.send(SMFIR_PROGRESS);
   };
 
-  // Quarantine the current message in the MTA-defined quarantine area, using 
-  // the given REASON as a text string describing the quarantine status.  Only 
+  // Quarantine the current message in the MTA-defined quarantine area, using
+  // the given REASON as a text string describing the quarantine status.  Only
   // callable from the "eom" callback.
 
   ctx.quarantine = function(reason) {
@@ -200,7 +200,7 @@ var server = net.createServer(function(socket) {
   };
 
   // Replace the message body with the data in BUFFER (a scalar).  This method
-  // may be called multiple times, each call appending to the replacement buffer.  
+  // may be called multiple times, each call appending to the replacement buffer.
   // End-of-line should be represented by CR-LF ("\r\n").  Only callable from the
   // "eom" callback.
 
@@ -218,7 +218,7 @@ var server = net.createServer(function(socket) {
 
   // Replace the envelope sender address for the given mail message.  This
   // method provides an implementation to access the mlfi_setsender method
-  // added to the libmilter library as part of the mlfi-setsender project 
+  // added to the libmilter library as part of the mlfi-setsender project
   // (http://www.sourceforge.net/projects/mlfi-setsender).
 
   ctx.setsender = function(sender) {
@@ -227,7 +227,7 @@ var server = net.createServer(function(socket) {
     }
     // TODO check enable_setsender
     if (this.hook !== 'eom') {
-     return  milter.emit('error', new Error('setsender: called outside of EOM'));
+      return  milter.emit('error', new Error('setsender: called outside of EOM'));
     }
     if (milter.actions & SMFIF_SETSENDER) {
       this.send(SMFIR_SETSENDER, Buffer.from(sender + '\0'));
@@ -295,7 +295,7 @@ var server = net.createServer(function(socket) {
     var data = queue.slice(5, end);
     queue = queue.slice(end);
     parse_packet(command, data);
-    check_packets();
+    setTimeout(check_packets, 0);
   };
 
 
@@ -308,15 +308,14 @@ var server = net.createServer(function(socket) {
           ctx.socket.end();
           ctx.socket = null;
         }
-        ctx.hook = 'abort';
-        milter.emit('abort', ctx);
+        call_hooks('abort');
         break;
       case SMFIC_BODY:
         call_hooks('body', data.toString('ascii'));
         break;
       case SMFIC_CONNECT:
         var hostname = '';
-        for (var i = 0; data.length < i && data[i] != null; i++) {
+        for (var i = 0; i < data.length && data[i] != 0; i++) {
           hostname += data.toString('ascii', i, i + 1);
         }
         var family = data.toString('ascii', i + 1, i + 2);
@@ -324,17 +323,20 @@ var server = net.createServer(function(socket) {
           return call_hooks('connect', hostname);
         }
         var port = data.readUInt16BE(i + 3);
-        var address = data.toString('ascii', i + 5, data.length - 2);
-        if (family === SMFIA_UNIX) {
-          call_hooks('connect', hostname, 'UNIX', address);
+        var address = data.toString('ascii', i + 4, data.length - 1);
+        switch (family) {
+          case SMFIA_UNIX:
+            call_hooks('connect', hostname, 'UNIX', address);
+            break;
+          case SMFIA_INET:
+            call_hooks('connect', hostname, 'INET', address, port);
+            break;
+          case SMFIA_INET6:
+            call_hooks('connect', hostname, 'INET6', address, port);
+            break;
+          default:
+            call_hooks('connect', hostname, 'UNKNOWN', address, port);
         }
-        if (family === SMFIA_INET) {
-          call_hooks('connect', hostname, 'INET', address, port);
-        }
-        if (family === SMFIA_INET6) {
-          call_hooks('connect', hostname, 'INET6', address, port);
-        }
-        call_hooks('connect');
         break;
       case SMFIC_MACRO:
         var cmdcode = data.toString('ascii', 0, 1);

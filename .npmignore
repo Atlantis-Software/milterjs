@@ -1,3 +1,7 @@
 .git
 node_modules
+package-lock.json
+.travis.yml
 .gitignore
+.nyc_output/
+test/
