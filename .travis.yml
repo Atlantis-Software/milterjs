@@ -8,5 +8,6 @@ services:
   - docker
 before_script:
   - docker build -t postfix-milter ./test/fixtures/
-  - docker run -d --net=host postfix-milter
+  - docker run -d --net=host -p 2525:2525 postfix-milter
+  - sleep 15
 after_success: npm run coveralls
