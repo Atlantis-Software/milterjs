@@ -8,7 +8,7 @@ message.addTo('you', 'you@example.net');
 message.setSubject('test');
 message.setText('lorem ipsum dolor sit amet'); 
 
-var transport = mailx.transport('127.0.0.1', 25);
+var transport = mailx.transport('127.0.0.1', 2525);
 
 describe('milter events', function() {
 
