@@ -49,7 +49,7 @@ describe('milter events', function() {
   it('should emit `connect` event', function(done) {
     milterjs.on('connect', function(ctx, hostname, connection_type, address, port) {
       ctx.continue();
-      assert(hostname.includes('localhost.localdomain'));
+      assert(hostname.includes('localhost'));
       assert.equal(connection_type, 'INET');
       assert.equal(address, '127.0.0.1');
       assert(port > 0 && port < 65535);
