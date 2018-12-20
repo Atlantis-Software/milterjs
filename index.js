@@ -146,7 +146,7 @@ var server = net.createServer(function(socket) {
     if (milter.actions & SMFIF_CHGHDRS) {
       var data = Buffer.alloc(6 + header.length + value.length);
       data.writeUInt32BE(num, 0);
-      data.write(header + '\0' + value + '\0', 5);
+      data.write(header + '\0' + value + '\0', 4);
       this.send(SMFIR_CHGHEADER, data);
     } else {
       milter.emit('error', new Error('chgheader: SMFIF_CHGHDRS not in capability list'));
