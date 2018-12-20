@@ -311,7 +311,7 @@ var server = net.createServer(function(socket) {
         call_hooks('abort');
         break;
       case SMFIC_BODY:
-        call_hooks('body', data.toString('ascii'));
+        call_hooks('body', data.toString());
         break;
       case SMFIC_CONNECT:
         var hostname = '';
