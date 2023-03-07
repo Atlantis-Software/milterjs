@@ -60,7 +60,7 @@ const SMFIP_NOEOH      = 0x40;
 const SMFIP_NONE       = 0x7F;
 /* eslint-enable no-unused-vars */
 
-var uniqueID = 1;
+var uniqueID = 0;
 const milter = module.exports = new EventEmitter();
 milter.actions = SMFI_CURR_ACTS;
 
@@ -72,7 +72,7 @@ var writeErrorHandler = function(err) {
 
 var server = net.createServer(function(socket) {
 
-  uniqueID === Number.MAX_SAFE_INTEGER ? 1 : uniqueID++;
+  uniqueID = uniqueID === Number.MAX_SAFE_INTEGER ? 1 : uniqueID+1;
 
   var ctx = {
     socket: socket,
